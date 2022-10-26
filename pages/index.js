@@ -1,9 +1,12 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 
 export default function Home() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -11,7 +14,20 @@ export default function Home() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = data => console.log(data);
+  const onSubmit = data => {
+    const { ambienteDecisao, numCenarios, numInvestimentos } = data;
+
+    const submitData = {
+      ambienteDecisao,
+      numCenarios: parseInt(numCenarios, 10),
+      numInvestimentos: parseInt(numInvestimentos, 10),
+    };
+
+    router.push({
+      pathname: "/tabela",
+      query: { ...submitData },
+    });
+  };
 
   return (
     <div className={styles.container}>
@@ -28,7 +44,7 @@ export default function Home() {
             <div className="ambienteDecisao">
               <p className="text-md">Qual o ambiente de decisão?</p>
 
-              <div className="flex gap-4 mb-10">
+              <div className="flex gap-4 mb-4">
                 <div className="radio">
                   <label>
                     <input
@@ -71,10 +87,18 @@ export default function Home() {
                   <input
                     className="border-2 h-8"
                     type="number"
-                    min='0'
+                    min="0"
                     {...register("numCenarios", {
                       valueAsNumber: true,
+                      required: "Digite o número de cenários!",
                     })}
+                  />
+                  <ErrorMessage
+                    errors={errors}
+                    name="numCenarios"
+                    render={({ message }) => (
+                      <p className="text-sm text-red-500 mb-4">{message}</p>
+                    )}
                   />
                 </div>
               </div>
@@ -87,10 +111,18 @@ export default function Home() {
                   <input
                     className="border-2 h-8"
                     type="number"
-                    min='0'
+                    min="0"
                     {...register("numInvestimentos", {
                       valueAsNumber: true,
+                      required: "Digite o número de cenários!",
                     })}
+                  />
+                  <ErrorMessage
+                    errors={errors}
+                    name="numInvestimentos"
+                    render={({ message }) => (
+                      <p className="text-sm text-red-500 mb-4">{message}</p>
+                    )}
                   />
                 </div>
               </div>
