@@ -7,14 +7,15 @@ function Tabela(props) {
   const router = useRouter();
 
   const [VMEvalue, setVMEvalue] = useState([]);
+  const [bestInvestiment, setBestInvestiment] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [generalErrorMsg, setGeneralErrorMsg] = useState('');
+  const [generalErrorMsg, setGeneralErrorMsg] = useState("");
 
   useEffect(() => {
     if (!props.router || !Object.values(props.router.query).length) {
       router.push("/");
     }
-  }, [router, props.router])
+  }, [router, props.router]);
 
   const query = props.router.query;
 
@@ -24,7 +25,10 @@ function Tabela(props) {
 
   const arrCenarios = Array.from(Array(numCenarios || 0), (_, i) => i + 1);
 
-  const arrInvestimentos = Array.from(Array(numInvestimentos || 0), (_, i) => i + 1);
+  const arrInvestimentos = Array.from(
+    Array(numInvestimentos || 0),
+    (_, i) => i + 1
+  );
 
   const {
     control,
@@ -67,9 +71,40 @@ function Tabela(props) {
       vme.push(result);
     });
 
+    const bestValue = vme.reduce((a, b) => Math.max(a, b), -Infinity);
+    const bestInv = vme.indexOf(bestValue);
+
+    return { vme, bestInvestiment: bestInv };
+  };
+
+  const calcPOE = data => {};
+
+  const onSubmit = data => {
+    setGeneralErrorMsg("");
+    const totalCenariosValue = data.cenarios.reduce(
+      (total, cenario) => total + parseInt(cenario.value, 10),
+      0
+    );
+
+    if (totalCenariosValue !== 100) {
+      setGeneralErrorMsg(
+        "Total de probabilidades dos cenários deve ser igual a 100!"
+      );
+      return;
+    }
+
+    console.log("totalCenariosValue", totalCenariosValue);
+
+    const { vme, bestInvestiment } = calcVME(data);
     setVMEvalue(vme);
-    {
-      /*
+    setBestInvestiment(bestInvestiment);
+
+    const result = calcPOE(data, bestInvestiment);
+
+    setIsSubmitted(true);
+    console.log("submit -->", data);
+
+    /*
         "cenarios": [
             {
               "value": "14"
@@ -94,23 +129,6 @@ function Tabela(props) {
             }
           }
         */
-    }
-  };
-
-  const onSubmit = data => {
-    setGeneralErrorMsg('');
-    const totalCenariosValue = data.cenarios.reduce((total, cenario) => total + parseInt(cenario.value, 10), 0);
-
-    if (totalCenariosValue !== 100) {
-      setGeneralErrorMsg('Total de probabilidades dos cenários deve ser igual a 100!');
-      return;
-    }
-
-    console.log('totalCenariosValue', totalCenariosValue)
-
-    calcVME(data);
-    setIsSubmitted(true);
-    console.log("submit -->", data);
   };
 
   return (
@@ -179,7 +197,7 @@ function Tabela(props) {
                                     >
                                       <input
                                         {...register(
-                                          `investimentos.${fieldIndex}.C${cenIndex}.value`,
+                                          `investimentos.${fieldIndex}.${cenIndex}.value`,
                                           {
                                             required:
                                               "Investimento não informado!",
@@ -216,21 +234,101 @@ function Tabela(props) {
                   Concluir
                 </button>
               </div>
-              {errors.cenarios && <p className="text-md text-red-500 mt-5">Informe todos os cenários!</p>}
-              {errors.investimentos && <p className="text-md text-red-500 mt-5">Informe todos os investimentos!</p>}
-              {generalErrorMsg && <p className="text-md text-red-500 mt-5">{generalErrorMsg}</p>}
+              {errors.cenarios && (
+                <p className="text-md text-red-500 mt-5">
+                  Informe todos os cenários!
+                </p>
+              )}
+              {errors.investimentos && (
+                <p className="text-md text-red-500 mt-5">
+                  Informe todos os investimentos!
+                </p>
+              )}
+              {generalErrorMsg && (
+                <p className="text-md text-red-500 mt-5">{generalErrorMsg}</p>
+              )}
             </form>
           </>
         ) : (
           <>
-            <h1>RESULTADOS</h1>
-            <h2>VME</h2>
+            <h1 className="text-xl mb-6">RESULTADOS</h1>
             <div>
-              {VMEvalue.map((i, index) => (
-                <p key={index}>
-                  Inv {index + 1}: {i}
-                </p>
-              ))}
+              <div className="bg-white border rounded-5 ">
+                <div className="p-4">
+                  <div className="flex flex-col">
+                    <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+                      <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+                        <div className="overflow-hidden">
+                          <table className="min-w-full">
+                            <thead className="bg-white border-b">
+                              <tr>
+                                <th
+                                  scope="col"
+                                  className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                                >
+                                  Investimentos
+                                </th>
+
+                                {/* RENDERIZA CENARIOS */}
+                                {fieldsCenarios.map((i, index) => (
+                                  <th
+                                    scope="col"
+                                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                                    key={i.id}
+                                  >
+                                    <span>C{index + 1}</span>
+                                    {" ("}
+                                    {allValues.cenarios[index].value}
+                                    {"%)"}
+                                  </th>
+                                ))}
+
+                                <th
+                                  scope="col"
+                                  className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                                >
+                                  VME
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {/* RENDERIZA INVESTIMENTOS */}
+                              {fieldsInvestimentos.map((field, fieldIndex) => (
+                                <tr
+                                  className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100 text-center"
+                                  key={fieldIndex.id}
+                                >
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    Inv {fieldIndex + 1}
+                                  </td>
+                                  {fieldsCenarios.map((i, cenIndex) => (
+                                    <td
+                                      className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                                      key={`${field.id}-${fieldIndex}-${cenIndex}`}
+                                    >
+                                      {
+                                        allValues.investimentos[fieldIndex][
+                                          cenIndex
+                                        ].value
+                                      }
+                                    </td>
+                                  ))}
+                                  <td className="text-center">
+                                    {VMEvalue[fieldIndex].toFixed(2)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-md text-center">
+                <strong>Melhor investimento:</strong> Investimento {bestInvestiment + 1}
+              </p>
             </div>
           </>
         )}
