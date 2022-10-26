@@ -13,9 +13,6 @@ export default function Home() {
     formState: { errors },
   } = useForm();
 
-  const [numCenarios, setNumCenarios] = useState();
-  const [numInvestimentos, setNumInvestimentos] = useState();
-
   const onSubmit = data => console.log(data);
 
   return (
@@ -32,7 +29,7 @@ export default function Home() {
           <div className="ambienteDecisao">
             <p className="text-md">Qual o ambiente de decisão?</p>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-4">
               <div className="radio">
                 <label>
                   <input
@@ -66,6 +63,38 @@ export default function Home() {
                 <p className="text-sm text-red-500 mb-4">{message}</p>
               )}
             />
+          </div>
+          <div className="cenarios">
+            <p className="text-md">Qual o número de cenários?</p>
+
+            <div className="flex mb-4">
+              <div className="input">
+                <input
+                  className="border-2"
+                  type="number"
+                  min='0'
+                  {...register("numCenarios", {
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="investimentos">
+            <p className="text-md">Qual o número de Investimentos?</p>
+
+            <div className="flex mb-4">
+              <div className="">
+                <input
+                  className="border-2"
+                  type="number"
+                  min='0'
+                  {...register("numInvestimentos", {
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
+            </div>
           </div>
 
           <button
