@@ -1,4 +1,4 @@
-function TabelaCustoOportunidade({ cenarios, investimentos, poe }) {
+function TabelaPoe({ cenarios, investimentos, poe }) {
   return (
     <div className="bg-white border rounded-5 ">
       <div className="p-4">
@@ -13,7 +13,7 @@ function TabelaCustoOportunidade({ cenarios, investimentos, poe }) {
                         scope="col"
                         className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       >
-                        Custo de oportunidade
+                        Investimento
                       </th>
 
                       {/* RENDERIZA CENARIOS */}
@@ -69,4 +69,4 @@ function TabelaCustoOportunidade({ cenarios, investimentos, poe }) {
   );
 }
 
-export default TabelaCustoOportunidade;
+export default TabelaPoe;

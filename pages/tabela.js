@@ -3,7 +3,8 @@ import { withRouter, useRouter } from "next/router";
 import { useForm, useFieldArray } from "react-hook-form";
 import TabelaVme from "../components/TabelaVme";
 import styles from "../styles/Home.module.css";
-import TabelaCustoOportunidade from "../components/TabelaCustoOportunidade";
+import TabelaPoe from "../components/TabelaPoe";
+import TabelaVeip from "../components/TabelaVeip";
 
 function Tabela(props) {
   const router = useRouter();
@@ -12,6 +13,9 @@ function Tabela(props) {
   const [POEvalue, setPOEvalue] = useState([]);
   const [bestVME, setBestVME] = useState();
   const [bestPOE, setBestPOE] = useState();
+  const [invPerfeito, setInvPerfeito] = useState();
+  const [invPerfeitoPond, setInvPerfeitoPond] = useState();
+  const [veip, setVeip] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [generalErrorMsg, setGeneralErrorMsg] = useState("");
 
@@ -105,7 +109,7 @@ function Tabela(props) {
       const result = Object.values(inv).reduce(
         (total, invAtual, index) =>
           total +
-          (parseInt(invAtual.value, 10) * parseInt(cenarios[index].value, 10)) /
+          (Number(invAtual.value) * Number(cenarios[index].value)) /
             100,
         0
       );
@@ -138,15 +142,35 @@ function Tabela(props) {
       return acc + (p * (Number(cenarios[index].value)/100));
     }, 0)]);
 
-    console.log('withMedia', withMedia)
-
     const poeValues = withMedia.map((poe) => poe[poe.length-1]);
-    console.log('poeValues', poeValues);
     const minPoeValue = Math.min(...poeValues);
-    console.log('minPoeValue', minPoeValue);
     const bestPOEInv = withMedia.findIndex((poe) => poe[poe.length-1] === minPoeValue);
 
     return { poe: withMedia, bestPOEInv  };
+  }
+
+  const calcVEIP = (data, vme) => {
+    const { investimentos, cenarios } = data;
+
+    const invPerfeito = investimentos.map((i) => {
+      return Object.values(i).map((invVal, index) => {
+        const investimentosIndex = investimentos.map((i) => i[index]);
+        const bestInvOnIndex = investimentosIndex.reduce((a, b) => 
+          {
+            return Number(a.value) > Number(b.value) ? a : b
+          },
+          { value: '0' }
+        );
+        return Number(bestInvOnIndex.value);
+      });
+    })[0];
+
+    const invPerfeitoPonderado = [...invPerfeito.map((i, index) => i * (Number(cenarios[index].value)/100)), invPerfeito.reduce((acc, p, index) => {
+      return acc + (p * (Number(cenarios[index].value)/100));
+    }, 0)];
+
+    const veip = invPerfeitoPonderado[invPerfeitoPonderado.length - 1] - Math.max(...vme);
+    return { veip, invPerfeito, invPerfeitoPond: invPerfeitoPonderado };
   }
 
   const onSubmit = data => {
@@ -173,6 +197,12 @@ function Tabela(props) {
     const { poe, bestPOEInv } = calcPOE(data);
     setPOEvalue(poe);
     setBestPOE(bestPOEInv);
+
+    const { veip, invPerfeito, invPerfeitoPond } = calcVEIP(data, vme);
+    setVeip(veip);
+    setInvPerfeito(invPerfeito);
+    console.log('invPerfeitoPond', invPerfeitoPond)
+    setInvPerfeitoPond(invPerfeitoPond);
 
     setIsSubmitted(true);
   };
@@ -306,9 +336,15 @@ function Tabela(props) {
               </p>
 
               <h2 className="bold text-lg text-center mt-6">POE</h2>
-              <TabelaCustoOportunidade cenarios={allValues.cenarios} investimentos={allValues.investimentos} poe={POEvalue} />
+              <TabelaPoe cenarios={allValues.cenarios} investimentos={allValues.investimentos} poe={POEvalue} />
               <p className="text-md text-center">
                 <strong>Melhor investimento:</strong> Investimento {bestPOE + 1}
+              </p>
+
+              <h2 className="bold text-lg text-center mt-6">VEIP</h2>
+              <TabelaVeip invPerfeito={invPerfeito} invPonderado={invPerfeitoPond} veip={veip} />
+              <p className="text-md text-center">
+                <strong>VEIP:</strong> {veip}
               </p>
             </div>
           </>
