@@ -55,7 +55,7 @@ function TabelaVme({ cenarios, investimentos, vme }) {
                           {investimentos[fieldIndex][cenIndex].value}
                         </td>
                       ))}
-                      <td className="text-center">
+                      <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                         {vme[fieldIndex].toFixed(2)}
                       </td>
                     </tr>

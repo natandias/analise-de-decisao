@@ -6,6 +6,45 @@ import styles from "../styles/Home.module.css";
 import TabelaPoe from "../components/TabelaPoe";
 import TabelaVeip from "../components/TabelaVeip";
 
+const mockDefaultValues = {
+  investimentos: [
+    {
+      0: {
+        value: "100",
+      },
+      1: {
+        value: "210",
+      },
+      2: {
+        value: "140",
+      },
+    },
+    {
+      0: {
+        value: "120",
+      },
+      1: {
+        value: "80",
+      },
+      2: {
+        value: "190",
+      },
+    },
+    {
+      0: {
+        value: "170",
+      },
+      1: {
+        value: "200",
+      },
+      2: {
+        value: "140",
+      },
+    },
+  ],
+  cenarios: [{ value: "25" }, { value: "35" }, { value: "40" }],
+};
+
 function Tabela(props) {
   const router = useRouter();
 
@@ -46,47 +85,10 @@ function Tabela(props) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      investimentos: [
-        {
-          0: {
-            value: "100"
-          },
-          1: {
-            value: "210"
-          },
-          2: {
-            value: "140"
-          }
-        },
-        {
-          0: {
-            value: "120"
-          },
-          1: {
-            value: "80"
-          },
-          2: {
-            value: "190"
-          }
-        },
-        {
-          0: {
-            value: "170"
-          },
-          1: {
-            value: "200"
-          },
-          2: {
-            value: "140"
-          }
-        }
-      ],
-      cenarios: [
-        {value: '25'},
-        {value: '35'},
-        {value: '40'}
-      ]
-  }});
+      cenarios: arrCenarios.map(i => ({ value: 0 })),
+      investimentos: arrInvestimentos.map(i => ({})),
+    },
+  });
 
   const { fields: fieldsCenarios } = useFieldArray({
     control,
@@ -109,8 +111,7 @@ function Tabela(props) {
       const result = Object.values(inv).reduce(
         (total, invAtual, index) =>
           total +
-          (Number(invAtual.value) * Number(cenarios[index].value)) /
-            100,
+          (Number(invAtual.value) * Number(cenarios[index].value)) / 100,
         0
       );
       vme.push(result);
@@ -122,56 +123,67 @@ function Tabela(props) {
     return { vme, bestVmeInv: bestInv };
   };
 
-  const calcPOE = (data) => {
+  const calcPOE = data => {
     const { investimentos, cenarios } = data;
 
-    const arrPOE = investimentos.map((i) => {
+    const arrPOE = investimentos.map(i => {
       return Object.values(i).map((invVal, index) => {
-        const investimentosIndex = investimentos.map((i) => i[index]);
-        const bestInvOnIndex = investimentosIndex.reduce((a, b) => 
-          {
-            return Number(a.value) > Number(b.value) ? a : b
+        const investimentosIndex = investimentos.map(i => i[index]);
+        const bestInvOnIndex = investimentosIndex.reduce(
+          (a, b) => {
+            return Number(a.value) > Number(b.value) ? a : b;
           },
-          { value: '0' }
+          { value: "0" }
         );
         return Math.abs(Number(invVal.value) - Number(bestInvOnIndex.value));
       });
     });
 
-    const withMedia = arrPOE.map((poe) => [...poe, poe.reduce((acc, p, index) => {
-      return acc + (p * (Number(cenarios[index].value)/100));
-    }, 0)]);
+    const withMedia = arrPOE.map(poe => [
+      ...poe,
+      poe.reduce((acc, p, index) => {
+        return acc + p * (Number(cenarios[index].value) / 100);
+      }, 0),
+    ]);
 
-    const poeValues = withMedia.map((poe) => poe[poe.length-1]);
+    const poeValues = withMedia.map(poe => poe[poe.length - 1]);
     const minPoeValue = Math.min(...poeValues);
-    const bestPOEInv = withMedia.findIndex((poe) => poe[poe.length-1] === minPoeValue);
+    const bestPOEInv = withMedia.findIndex(
+      poe => poe[poe.length - 1] === minPoeValue
+    );
 
-    return { poe: withMedia, bestPOEInv  };
-  }
+    return { poe: withMedia, bestPOEInv };
+  };
 
   const calcVEIP = (data, vme) => {
     const { investimentos, cenarios } = data;
 
-    const invPerfeito = investimentos.map((i) => {
+    const invPerfeito = investimentos.map(i => {
       return Object.values(i).map((invVal, index) => {
-        const investimentosIndex = investimentos.map((i) => i[index]);
-        const bestInvOnIndex = investimentosIndex.reduce((a, b) => 
-          {
-            return Number(a.value) > Number(b.value) ? a : b
+        const investimentosIndex = investimentos.map(i => i[index]);
+        const bestInvOnIndex = investimentosIndex.reduce(
+          (a, b) => {
+            return Number(a.value) > Number(b.value) ? a : b;
           },
-          { value: '0' }
+          { value: "0" }
         );
         return Number(bestInvOnIndex.value);
       });
     })[0];
 
-    const invPerfeitoPonderado = [...invPerfeito.map((i, index) => i * (Number(cenarios[index].value)/100)), invPerfeito.reduce((acc, p, index) => {
-      return acc + (p * (Number(cenarios[index].value)/100));
-    }, 0)];
+    const invPerfeitoPonderado = [
+      ...invPerfeito.map(
+        (i, index) => i * (Number(cenarios[index].value) / 100)
+      ),
+      invPerfeito.reduce((acc, p, index) => {
+        return acc + p * (Number(cenarios[index].value) / 100);
+      }, 0),
+    ];
 
-    const veip = invPerfeitoPonderado[invPerfeitoPonderado.length - 1] - Math.max(...vme);
+    const veip =
+      invPerfeitoPonderado[invPerfeitoPonderado.length - 1] - Math.max(...vme);
     return { veip, invPerfeito, invPerfeitoPond: invPerfeitoPonderado };
-  }
+  };
 
   const onSubmit = data => {
     setGeneralErrorMsg("");
@@ -201,11 +213,13 @@ function Tabela(props) {
     const { veip, invPerfeito, invPerfeitoPond } = calcVEIP(data, vme);
     setVeip(veip);
     setInvPerfeito(invPerfeito);
-    console.log('invPerfeitoPond', invPerfeitoPond)
+    console.log("invPerfeitoPond", invPerfeitoPond);
     setInvPerfeitoPond(invPerfeitoPond);
 
     setIsSubmitted(true);
   };
+
+  const saveAnalisis = () => window.print();
 
   return (
     <div className={styles.container}>
@@ -330,22 +344,42 @@ function Tabela(props) {
             <h1 className="text-xl mb-6">RESULTADOS</h1>
             <div>
               <h2 className="bold text-lg text-center">VME</h2>
-              <TabelaVme cenarios={allValues.cenarios} investimentos={allValues.investimentos} vme={VMEvalue} /> 
+              <TabelaVme
+                cenarios={allValues.cenarios}
+                investimentos={allValues.investimentos}
+                vme={VMEvalue}
+              />
               <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestVME + 1}
+                <strong>Melhor investimento:</strong> Investimento {bestVME + 1} (maior VME)
               </p>
 
               <h2 className="bold text-lg text-center mt-6">POE</h2>
-              <TabelaPoe cenarios={allValues.cenarios} investimentos={allValues.investimentos} poe={POEvalue} />
+              <TabelaPoe
+                cenarios={allValues.cenarios}
+                investimentos={allValues.investimentos}
+                poe={POEvalue}
+              />
               <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1}
+                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1} (menor perda)
               </p>
 
               <h2 className="bold text-lg text-center mt-6">VEIP</h2>
-              <TabelaVeip invPerfeito={invPerfeito} invPonderado={invPerfeitoPond} veip={veip} />
+              <TabelaVeip
+                invPerfeito={invPerfeito}
+                invPonderado={invPerfeitoPond}
+                veip={veip}
+              />
               <p className="text-md text-center">
                 <strong>VEIP:</strong> {veip}
               </p>
+
+              <button
+                  type="submit"
+                  className="border rounded border-blue-500 bg-blue-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
+                  onClick={saveAnalisis}
+                >
+                  Salvar análise
+                </button>
             </div>
           </>
         )}
