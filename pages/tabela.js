@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { withRouter, useRouter } from "next/router";
 import { useForm, useFieldArray } from "react-hook-form";
+import TabelaVme from "../components/TabelaVme";
 import styles from "../styles/Home.module.css";
+import TabelaCustoOportunidade from "../components/TabelaCustoOportunidade";
 
 function Tabela(props) {
   const router = useRouter();
 
   const [VMEvalue, setVMEvalue] = useState([]);
-  const [bestInvestiment, setBestInvestiment] = useState();
+  const [POEvalue, setPOEvalue] = useState([]);
+  const [bestVME, setBestVME] = useState();
+  const [bestPOE, setBestPOE] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [generalErrorMsg, setGeneralErrorMsg] = useState("");
 
@@ -38,10 +42,47 @@ function Tabela(props) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      cenarios: arrCenarios.map(i => ({ value: 0 })),
-      investimentos: arrInvestimentos.map(i => ({})),
-    },
-  });
+      investimentos: [
+        {
+          0: {
+            value: "100"
+          },
+          1: {
+            value: "210"
+          },
+          2: {
+            value: "140"
+          }
+        },
+        {
+          0: {
+            value: "120"
+          },
+          1: {
+            value: "80"
+          },
+          2: {
+            value: "190"
+          }
+        },
+        {
+          0: {
+            value: "170"
+          },
+          1: {
+            value: "200"
+          },
+          2: {
+            value: "140"
+          }
+        }
+      ],
+      cenarios: [
+        {value: '25'},
+        {value: '35'},
+        {value: '40'}
+      ]
+  }});
 
   const { fields: fieldsCenarios } = useFieldArray({
     control,
@@ -74,10 +115,39 @@ function Tabela(props) {
     const bestValue = vme.reduce((a, b) => Math.max(a, b), -Infinity);
     const bestInv = vme.indexOf(bestValue);
 
-    return { vme, bestInvestiment: bestInv };
+    return { vme, bestVmeInv: bestInv };
   };
 
-  const calcPOE = data => {};
+  const calcPOE = (data) => {
+    const { investimentos, cenarios } = data;
+
+    const arrPOE = investimentos.map((i) => {
+      return Object.values(i).map((invVal, index) => {
+        const investimentosIndex = investimentos.map((i) => i[index]);
+        const bestInvOnIndex = investimentosIndex.reduce((a, b) => 
+          {
+            return Number(a.value) > Number(b.value) ? a : b
+          },
+          { value: '0' }
+        );
+        return Math.abs(Number(invVal.value) - Number(bestInvOnIndex.value));
+      });
+    });
+
+    const withMedia = arrPOE.map((poe) => [...poe, poe.reduce((acc, p, index) => {
+      return acc + (p * (Number(cenarios[index].value)/100));
+    }, 0)]);
+
+    console.log('withMedia', withMedia)
+
+    const poeValues = withMedia.map((poe) => poe[poe.length-1]);
+    console.log('poeValues', poeValues);
+    const minPoeValue = Math.min(...poeValues);
+    console.log('minPoeValue', minPoeValue);
+    const bestPOEInv = withMedia.findIndex((poe) => poe[poe.length-1] === minPoeValue);
+
+    return { poe: withMedia, bestPOEInv  };
+  }
 
   const onSubmit = data => {
     setGeneralErrorMsg("");
@@ -94,41 +164,17 @@ function Tabela(props) {
     }
 
     console.log("totalCenariosValue", totalCenariosValue);
-
-    const { vme, bestInvestiment } = calcVME(data);
-    setVMEvalue(vme);
-    setBestInvestiment(bestInvestiment);
-
-    const result = calcPOE(data, bestInvestiment);
-
-    setIsSubmitted(true);
     console.log("submit -->", data);
 
-    /*
-        "cenarios": [
-            {
-              "value": "14"
-            },
-            {
-              "value": "16"
-            },
-            {
-              "value": "15"
-            }
-          ]
-          cada investimento:
-          {
-            "C0": {
-              "value": "8"
-            },
-            "C1": {
-              "value": "19"
-            },
-            "C2": {
-              "value": "17"
-            }
-          }
-        */
+    const { vme, bestVmeInv } = calcVME(data);
+    setVMEvalue(vme);
+    setBestVME(bestVmeInv);
+
+    const { poe, bestPOEInv } = calcPOE(data);
+    setPOEvalue(poe);
+    setBestPOE(bestPOEInv);
+
+    setIsSubmitted(true);
   };
 
   return (
@@ -253,81 +299,16 @@ function Tabela(props) {
           <>
             <h1 className="text-xl mb-6">RESULTADOS</h1>
             <div>
-              <div className="bg-white border rounded-5 ">
-                <div className="p-4">
-                  <div className="flex flex-col">
-                    <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                      <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
-                        <div className="overflow-hidden">
-                          <table className="min-w-full">
-                            <thead className="bg-white border-b">
-                              <tr>
-                                <th
-                                  scope="col"
-                                  className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                                >
-                                  Investimentos
-                                </th>
-
-                                {/* RENDERIZA CENARIOS */}
-                                {fieldsCenarios.map((i, index) => (
-                                  <th
-                                    scope="col"
-                                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                                    key={i.id}
-                                  >
-                                    <span>C{index + 1}</span>
-                                    {" ("}
-                                    {allValues.cenarios[index].value}
-                                    {"%)"}
-                                  </th>
-                                ))}
-
-                                <th
-                                  scope="col"
-                                  className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                                >
-                                  VME
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {/* RENDERIZA INVESTIMENTOS */}
-                              {fieldsInvestimentos.map((field, fieldIndex) => (
-                                <tr
-                                  className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100 text-center"
-                                  key={fieldIndex.id}
-                                >
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    Inv {fieldIndex + 1}
-                                  </td>
-                                  {fieldsCenarios.map((i, cenIndex) => (
-                                    <td
-                                      className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
-                                      key={`${field.id}-${fieldIndex}-${cenIndex}`}
-                                    >
-                                      {
-                                        allValues.investimentos[fieldIndex][
-                                          cenIndex
-                                        ].value
-                                      }
-                                    </td>
-                                  ))}
-                                  <td className="text-center">
-                                    {VMEvalue[fieldIndex].toFixed(2)}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <h2 className="bold text-lg text-center">VME</h2>
+              <TabelaVme cenarios={allValues.cenarios} investimentos={allValues.investimentos} vme={VMEvalue} /> 
               <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestInvestiment + 1}
+                <strong>Melhor investimento:</strong> Investimento {bestVME + 1}
+              </p>
+
+              <h2 className="bold text-lg text-center mt-6">POE</h2>
+              <TabelaCustoOportunidade cenarios={allValues.cenarios} investimentos={allValues.investimentos} poe={POEvalue} />
+              <p className="text-md text-center">
+                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1}
               </p>
             </div>
           </>
