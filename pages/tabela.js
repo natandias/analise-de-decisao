@@ -221,6 +221,8 @@ function Tabela(props) {
 
   const saveAnalisis = () => window.print();
 
+  const restart = () => router.push('/');
+
   return (
     <div className={styles.container}>
       <div className={styles.main}>
@@ -350,7 +352,8 @@ function Tabela(props) {
                 vme={VMEvalue}
               />
               <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestVME + 1} (maior VME)
+                <strong>Melhor investimento:</strong> Investimento {bestVME + 1}{" "}
+                (maior VME)
               </p>
 
               <h2 className="bold text-lg text-center mt-6">POE</h2>
@@ -360,7 +363,8 @@ function Tabela(props) {
                 poe={POEvalue}
               />
               <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1} (menor perda)
+                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1}{" "}
+                (menor perda)
               </p>
 
               <h2 className="bold text-lg text-center mt-6">VEIP</h2>
@@ -374,12 +378,19 @@ function Tabela(props) {
               </p>
 
               <button
-                  type="submit"
-                  className="border rounded border-blue-500 bg-blue-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
-                  onClick={saveAnalisis}
-                >
-                  Salvar análise
-                </button>
+                type="submit"
+                className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
+                onClick={saveAnalisis}
+              >
+                Salvar análise
+              </button>
+              <button
+                type="submit"
+                className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
+                onClick={restart}
+              >
+                Realizar outra análise
+              </button>
             </div>
           </>
         )}
