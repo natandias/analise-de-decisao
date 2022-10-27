@@ -30,18 +30,18 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
         <title>Análise de Decisão</title>
         <meta name="description" content="Analise sua decisão" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <div className="h-[600px] w-[500px] flex items-center flex-col border-4 pt-16">
-          <h1 className="mb-10 text-xl">ANÁLISE DE DECISÃO</h1>
+      <main className={ `flex justify-center items-center flex-col min-h-screen min-w-full p-0 bg-gradient-to-r from-cyan-500 to-blue-500 text-lg` }>
+        <div className="h-[600px] w-[500px] flex items-center flex-col border-4 pt-16 bg-white rounded-xl ">
+          <h1 className="mb-10 text-2xl">ANÁLISE DE DECISÃO</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="ambienteDecisao">
+            <div>
               <p className="text-md">Qual o ambiente de decisão?</p>
 
               <div className="flex gap-4 mb-4">
@@ -103,7 +103,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="mb-28">
+            <div className="mb-20">
               <p className="text-md">Qual o número de Investimentos?</p>
 
               <div className="flex mb-4">
@@ -130,7 +130,7 @@ export default function Home() {
 
             <button
               type="submit"
-              className="border rounded border-green-500 bg-green-500 text-white text-sm w-full p-2"
+              className="border rounded border-green-500 bg-green-500 text-white text-md w-full p-2"
             >
               Prosseguir
             </button>
