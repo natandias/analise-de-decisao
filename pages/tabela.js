@@ -5,8 +5,10 @@ import TabelaVme from "../components/TabelaVme";
 import styles from "../styles/Home.module.css";
 import TabelaPoe from "../components/TabelaPoe";
 import TabelaVeip from "../components/TabelaVeip";
+import TabelaIncerteza from "../components/TabelaIncerteza";
 
 const mockDefaultValues = {
+  ambienteDecisao: "Incerteza",
   investimentos: [
     {
       0: {
@@ -84,10 +86,11 @@ function Tabela(props) {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      cenarios: arrCenarios.map(i => ({ value: 0 })),
-      investimentos: arrInvestimentos.map(i => ({})),
-    },
+    // defaultValues: {
+    //   cenarios: arrCenarios.map(i => ({ value: 0 })),
+    //   investimentos: arrInvestimentos.map(i => ({})),
+    // },
+    defaultValues: mockDefaultValues,
   });
 
   const { fields: fieldsCenarios } = useFieldArray({
@@ -202,26 +205,30 @@ function Tabela(props) {
     console.log("totalCenariosValue", totalCenariosValue);
     console.log("submit -->", data);
 
-    const { vme, bestVmeInv } = calcVME(data);
-    setVMEvalue(vme);
-    setBestVME(bestVmeInv);
+    if (ambienteDecisao === "Risco") {
+      const { vme, bestVmeInv } = calcVME(data);
+      setVMEvalue(vme);
+      setBestVME(bestVmeInv);
 
-    const { poe, bestPOEInv } = calcPOE(data);
-    setPOEvalue(poe);
-    setBestPOE(bestPOEInv);
+      const { poe, bestPOEInv } = calcPOE(data);
+      setPOEvalue(poe);
+      setBestPOE(bestPOEInv);
 
-    const { veip, invPerfeito, invPerfeitoPond } = calcVEIP(data, vme);
-    setVeip(veip);
-    setInvPerfeito(invPerfeito);
-    console.log("invPerfeitoPond", invPerfeitoPond);
-    setInvPerfeitoPond(invPerfeitoPond);
+      const { veip, invPerfeito, invPerfeitoPond } = calcVEIP(data, vme);
+      setVeip(veip);
+      setInvPerfeito(invPerfeito);
+      setInvPerfeitoPond(invPerfeitoPond);
+    }
+
+    if (ambienteDecisao === "Incerteza") {
+    }
 
     setIsSubmitted(true);
   };
 
   const saveAnalisis = () => window.print();
 
-  const restart = () => router.push('/');
+  const restart = () => router.push("/");
 
   return (
     <div className={styles.container}>
@@ -344,54 +351,64 @@ function Tabela(props) {
         ) : (
           <>
             <h1 className="text-xl mb-6">RESULTADOS</h1>
-            <div>
-              <h2 className="bold text-lg text-center">VME</h2>
-              <TabelaVme
-                cenarios={allValues.cenarios}
-                investimentos={allValues.investimentos}
-                vme={VMEvalue}
-              />
-              <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestVME + 1}{" "}
-                (maior VME)
-              </p>
+            {ambienteDecisao === "Risco" && (
+              <div>
+                <h2 className="bold text-lg text-center">VME</h2>
+                <TabelaVme
+                  cenarios={allValues.cenarios}
+                  investimentos={allValues.investimentos}
+                  vme={VMEvalue}
+                />
+                <p className="text-md text-center">
+                  <strong>Melhor investimento:</strong> Investimento{" "}
+                  {bestVME + 1} (maior VME)
+                </p>
 
-              <h2 className="bold text-lg text-center mt-6">POE</h2>
-              <TabelaPoe
-                cenarios={allValues.cenarios}
-                investimentos={allValues.investimentos}
-                poe={POEvalue}
-              />
-              <p className="text-md text-center">
-                <strong>Melhor investimento:</strong> Investimento {bestPOE + 1}{" "}
-                (menor perda)
-              </p>
+                <h2 className="bold text-lg text-center mt-6">POE</h2>
+                <TabelaPoe
+                  cenarios={allValues.cenarios}
+                  investimentos={allValues.investimentos}
+                  poe={POEvalue}
+                />
+                <p className="text-md text-center">
+                  <strong>Melhor investimento:</strong> Investimento{" "}
+                  {bestPOE + 1} (menor perda)
+                </p>
 
-              <h2 className="bold text-lg text-center mt-6">VEIP</h2>
-              <TabelaVeip
-                invPerfeito={invPerfeito}
-                invPonderado={invPerfeitoPond}
-                veip={veip}
-              />
-              <p className="text-md text-center">
-                <strong>VEIP:</strong> {veip}
-              </p>
+                <h2 className="bold text-lg text-center mt-6">VEIP</h2>
+                <TabelaVeip
+                  invPerfeito={invPerfeito}
+                  invPonderado={invPerfeitoPond}
+                  veip={veip}
+                />
+                <p className="text-md text-center">
+                  <strong>VEIP:</strong> {veip}
+                </p>
 
-              <button
-                type="submit"
-                className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
-                onClick={saveAnalisis}
-              >
-                Salvar análise
-              </button>
-              <button
-                type="submit"
-                className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
-                onClick={restart}
-              >
-                Realizar outra análise
-              </button>
-            </div>
+                <button
+                  type="submit"
+                  className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
+                  onClick={saveAnalisis}
+                >
+                  Salvar análise
+                </button>
+                <button
+                  type="submit"
+                  className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
+                  onClick={restart}
+                >
+                  Realizar outra análise
+                </button>
+              </div>
+            )}
+            {ambienteDecisao === "Incerteza" && (
+              <div>
+                <TabelaIncerteza
+                  cenarios={allValues.cenarios}
+                  investimentos={allValues.investimentos}
+                />
+              </div>
+            )}
           </>
         )}
       </div>
