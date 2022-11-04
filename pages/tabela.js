@@ -384,21 +384,6 @@ function Tabela(props) {
                 <p className="text-md text-center">
                   <strong>VEIP:</strong> {veip}
                 </p>
-
-                <button
-                  type="submit"
-                  className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
-                  onClick={saveAnalisis}
-                >
-                  Salvar análise
-                </button>
-                <button
-                  type="submit"
-                  className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-6 p-2 print:hidden"
-                  onClick={restart}
-                >
-                  Realizar outra análise
-                </button>
               </div>
             )}
             {ambienteDecisao === "Incerteza" && (
@@ -410,6 +395,24 @@ function Tabela(props) {
               </div>
             )}
           </>
+        )}
+        {isSubmitted && (
+          <div className="w-42">
+            <button
+              type="submit"
+              className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
+              onClick={saveAnalisis}
+            >
+              Salvar análise
+            </button>
+            <button
+              type="submit"
+              className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
+              onClick={restart}
+            >
+              Realizar outra análise
+            </button>
+          </div>
         )}
       </div>
     </div>
