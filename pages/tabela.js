@@ -123,6 +123,8 @@ function Tabela(props) {
     console.log('ambienteDecisao', allValues.ambienteDecisao);
     console.log('cenarios', allValues.cenarios);
     console.log('investimentos', allValues.investimentos);
+
+    console.log("final state", state)
   }
 
   return (
@@ -260,10 +262,7 @@ function Tabela(props) {
             )}
             {ambienteDecisao === "Incerteza" && (
               <div>
-                <TabelaIncerteza
-                  cenarios={allValues.cenarios}
-                  investimentos={allValues.investimentos}
-                />
+                <TabelaIncerteza />
               </div>
             )}
           </>

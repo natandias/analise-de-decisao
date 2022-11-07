@@ -1,34 +1,24 @@
-const calcMiniMax = data => {
-  const { investimentos, cenarios } = data;
+import { calcMiniMax } from "../common/calcs";
+import { useContext, useEffect } from "react";
+import { TabelaContext } from "../context/TabelaContext";
 
-  const arrPOE = investimentos.map(i => {
-    return Object.values(i).map((invVal, index) => {
-      const investimentosIndex = investimentos.map(i => i[index]);
-      const bestInvOnIndex = investimentosIndex.reduce(
-        (a, b) => {
-          return Number(a.value) > Number(b.value) ? a : b;
-        },
-        { value: "0" }
-      );
-      return Math.abs(Number(invVal.value) - Number(bestInvOnIndex.value));
-    });
-  });
+function TabelaMiniMax() {
+  const {
+    state: {
+      cenarios,
+      investimentos,
+      MiniMax,
+      bestMiniMax
+    },
+    dispatch,
+  } = useContext(TabelaContext);
 
-  const withMax = arrPOE.map(poe => [...poe, Math.max(...poe)]);
+  useEffect(() => {
+    const { MiniMax, bestInv } = calcMiniMax({ cenarios, investimentos });
+    dispatch({ MiniMax, bestMiniMax: bestInv });
+  }, [cenarios, investimentos, dispatch]);
 
-  const poeValues = withMax.map(poe => poe[poe.length - 1]);
-  const minPoeValue = Math.min(...poeValues);
-  const bestPOEInv = withMax.findIndex(
-    poe => poe[poe.length - 1] === minPoeValue
-  );
-
-  return { miniMax: withMax, bestInv: bestPOEInv };
-};
-
-function TabelaMiniMax({ cenarios, investimentos }) {
-  const { miniMax, bestInv } = calcMiniMax({ cenarios, investimentos });
-
-  return (
+  return MiniMax && bestMiniMax !== null && (
     <div className="bg-white border rounded-5 mt-6">
       <div className="p-4">
         <h2 className="bold text-lg text-center mt-6">MiniMax</h2>
@@ -77,10 +67,10 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                         </td>
                         {[...cenarios, {}].map((i, cenIndex) => (
                           <td
-                            className={`${fieldIndex === bestInv && cenIndex === cenarios.length && 'font-bold'} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}
+                            className={`${fieldIndex === bestMiniMax && cenIndex === cenarios.length && 'font-bold'} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}
                             key={`${field.id}-${fieldIndex}-${cenIndex}`}
                           >
-                            {cenIndex === cenarios.length ? miniMax[fieldIndex][cenIndex].toFixed(2) : miniMax[fieldIndex][cenIndex]}
+                            {cenIndex === cenarios.length ? MiniMax[fieldIndex][cenIndex].toFixed(2) : MiniMax[fieldIndex][cenIndex]}
                           </td>
                         ))}
                       </tr>
@@ -89,7 +79,7 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                 </table>
                 <p className="text-md text-center mt-6">
                   <strong>Melhor investimento:</strong> Investimento{" "}
-                  {bestInv + 1}
+                  {bestMiniMax + 1}
                 </p>
               </div>
             </div>

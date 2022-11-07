@@ -7,7 +7,7 @@ import { TabelaContext } from "../context/TabelaContext";
 
 export default function Home() {
   const router = useRouter();
-  const { dispatch } = useContext(TabelaContext);
+  const { state, dispatch } = useContext(TabelaContext);
 
   const {
     register,

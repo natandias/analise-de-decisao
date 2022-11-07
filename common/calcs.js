@@ -77,4 +77,32 @@ const calcVEIP = (data, vme) => {
   return { veip, invPerfeito, invPerfeitoPond: invPerfeitoPonderado };
 };
 
-export { calcVME, calcPOE, calcVEIP };
+const calcMiniMax = data => {
+  const { investimentos, cenarios } = data;
+
+  const arrPOE = investimentos.map(i => {
+    return Object.values(i).map((invVal, index) => {
+      const investimentosIndex = investimentos.map(i => i[index]);
+      const bestInvOnIndex = investimentosIndex.reduce(
+        (a, b) => {
+          return Number(a.value) > Number(b.value) ? a : b;
+        },
+        { value: "0" }
+      );
+      return Math.abs(Number(invVal.value) - Number(bestInvOnIndex.value));
+    });
+  });
+
+  const withMax = arrPOE.map(poe => [...poe, Math.max(...poe)]);
+
+  const poeValues = withMax.map(poe => poe[poe.length - 1]);
+  const minPoeValue = Math.min(...poeValues);
+  const bestPOEInv = withMax.findIndex(
+    poe => poe[poe.length - 1] === minPoeValue
+  );
+
+  return { MiniMax: withMax, bestInv: bestPOEInv };
+};
+
+
+export { calcVME, calcPOE, calcVEIP, calcMiniMax };
