@@ -1,4 +1,38 @@
-function TabelaPoe({ cenarios, investimentos, poe }) {
+const calcPOE = data => {
+  const { investimentos, cenarios } = data;
+
+  const arrPOE = investimentos.map(i => {
+    return Object.values(i).map((invVal, index) => {
+      const investimentosIndex = investimentos.map(i => i[index]);
+      const bestInvOnIndex = investimentosIndex.reduce(
+        (a, b) => {
+          return Number(a.value) > Number(b.value) ? a : b;
+        },
+        { value: "0" }
+      );
+      return Math.abs(Number(invVal.value) - Number(bestInvOnIndex.value));
+    });
+  });
+
+  const withMedia = arrPOE.map(poe => [
+    ...poe,
+    poe.reduce((acc, p, index) => {
+      return acc + p * (Number(cenarios[index].value) / 100);
+    }, 0),
+  ]);
+
+  const poeValues = withMedia.map(poe => poe[poe.length - 1]);
+  const minPoeValue = Math.min(...poeValues);
+  const bestPOEInv = withMedia.findIndex(
+    poe => poe[poe.length - 1] === minPoeValue
+  );
+
+  return { poe: withMedia, bestPOEInv };
+};
+
+function TabelaPoe({ cenarios, investimentos }) {
+  const { poe, bestPOEInv } = calcPOE({ cenarios, investimentos });
+
   return (
     <div className="bg-white border rounded-5 ">
       <div className="p-4">
@@ -50,16 +84,20 @@ function TabelaPoe({ cenarios, investimentos, poe }) {
                         </td>
                         {[...cenarios, {}].map((i, cenIndex) => (
                             <td
-                              className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                              className={`${fieldIndex === bestPOEInv && cenIndex === cenarios.length && 'font-bold'} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}
                               key={`${field.id}-${fieldIndex}-${cenIndex}`}
                             >
-                              {poe[fieldIndex][cenIndex]}
+                              {cenIndex === cenarios.length ? poe[fieldIndex][cenIndex].toFixed(2) : poe[fieldIndex][cenIndex]}
                             </td>
                         ))}
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                <p className="text-md text-center mt-6">
+                  <strong>Melhor investimento:</strong> Investimento{" "}
+                  {bestPOEInv + 1} (menor perda)
+                </p>
               </div>
             </div>
           </div>

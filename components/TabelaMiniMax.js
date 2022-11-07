@@ -41,7 +41,7 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                     <tr>
                       <th
                         scope="col"
-                        className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                        className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                       >
                         Investimento
                       </th>
@@ -54,15 +54,12 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                           key={i.id}
                         >
                           <span>C{index + 1}</span>
-                          {" ("}
-                          {i.value}
-                          {"%)"}
                         </th>
                       ))}
 
                       <th
                         scope="col"
-                        className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                        className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                       >
                         Maiores
                       </th>
@@ -80,10 +77,10 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                         </td>
                         {[...cenarios, {}].map((i, cenIndex) => (
                           <td
-                            className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                            className={`${fieldIndex === bestInv && cenIndex === cenarios.length && 'font-bold'} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}
                             key={`${field.id}-${fieldIndex}-${cenIndex}`}
                           >
-                            {miniMax[fieldIndex][cenIndex]}
+                            {cenIndex === cenarios.length ? miniMax[fieldIndex][cenIndex].toFixed(2) : miniMax[fieldIndex][cenIndex]}
                           </td>
                         ))}
                       </tr>
@@ -92,7 +89,7 @@ function TabelaMiniMax({ cenarios, investimentos }) {
                 </table>
                 <p className="text-md text-center mt-6">
                   <strong>Melhor investimento:</strong> Investimento{" "}
-                  {bestInv + 1} (menor perda)
+                  {bestInv + 1}
                 </p>
               </div>
             </div>

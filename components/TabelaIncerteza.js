@@ -21,6 +21,13 @@ function TabelaIncerteza({ cenarios, investimentos }) {
     Hurwicz.push(hurwicz);
   });
 
+  console.log('MaxiMax', MaxiMax)
+
+  const bestMaxiMax = MaxiMax.indexOf(Math.max(...MaxiMax));
+  const bestMaxiMin = MaxiMin.indexOf(Math.max(...MaxiMin));
+  const bestLaplace = Laplace.indexOf(Math.max(...Laplace));
+  const bestHurwicz = Hurwicz.indexOf(Math.max(...Hurwicz))
+
   return (
     <>
       <div className="bg-white border rounded-5 ">
@@ -34,7 +41,7 @@ function TabelaIncerteza({ cenarios, investimentos }) {
                       <tr>
                         <th
                           scope="col"
-                          className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                          className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                         >
                           Investimentos
                         </th>
@@ -43,7 +50,7 @@ function TabelaIncerteza({ cenarios, investimentos }) {
                         {cenarios.map((i, index) => (
                           <th
                             scope="col"
-                            className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                            className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                             key={i.id}
                           >
                             <span>C{index + 1}</span>
@@ -55,25 +62,25 @@ function TabelaIncerteza({ cenarios, investimentos }) {
 
                         <th
                           scope="col"
-                          className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                          className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                         >
                           MaxiMax
                         </th>
                         <th
                           scope="col"
-                          className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                          className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                         >
                           MaxiMin
                         </th>
                         <th
                           scope="col"
-                          className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                          className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                         >
                           LaPlace
                         </th>
                         <th
                           scope="col"
-                          className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                          className="text-sm font-medium text-gray-900 px-6 py-4 text-center"
                         >
                           Hurwicz
                         </th>
@@ -97,22 +104,42 @@ function TabelaIncerteza({ cenarios, investimentos }) {
                               {investimentos[fieldIndex][cenIndex].value}
                             </td>
                           ))}
-                          <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className={`${fieldIndex === bestMaxiMax && 'font-bold'} text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}>
                             {MaxiMax[fieldIndex].toFixed(2)}
                           </td>
-                          <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className={`${fieldIndex === bestMaxiMin && 'font-bold'} text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}>
                             {MaxiMin[fieldIndex].toFixed(2)}
                           </td>
-                          <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className={`${fieldIndex === bestLaplace && 'font-bold'} text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}>
                             {Laplace[fieldIndex].toFixed(2)}
                           </td>
-                          <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className={`${fieldIndex === bestHurwicz && 'font-bold'} text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}>
                             {Hurwicz[fieldIndex].toFixed(2)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  <p className="text-md text-center mt-6">
+                    <strong>MaxiMax:</strong> Investimento{" "}
+                    {bestMaxiMax + 1}
+                  </p>
+
+                  <p className="text-md text-center mt-2">
+                    <strong>MaxiMin:</strong> Investimento{" "}
+                    {bestMaxiMin + 1}
+                  </p>
+
+                  <p className="text-md text-center mt-2">
+                    <strong>Laplace:</strong> Investimento{" "}
+                    {bestLaplace + 1}
+                  </p>
+
+                  <p className="text-md text-center mt-2">
+                    <strong>Hurwicz:</strong> Investimento{" "}
+                    {bestHurwicz + 1}
+                  </p>
+                  
                 </div>
               </div>
             </div>

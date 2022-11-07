@@ -1,4 +1,8 @@
-function TabelaVme({ cenarios, investimentos, vme }) {
+import calcVME from "../common/calcVme";
+
+function TabelaVme({ cenarios, investimentos }) {
+  const { vme, bestVmeInv } = calcVME({ cenarios, investimentos });
+
   return <div className="bg-white border rounded-5 ">
     <div className="p-4">
       <div className="flex flex-col">
@@ -55,13 +59,17 @@ function TabelaVme({ cenarios, investimentos, vme }) {
                           {investimentos[fieldIndex][cenIndex].value}
                         </td>
                       ))}
-                      <td className="text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                      <td className={`${fieldIndex === bestVmeInv && 'font-bold'} text-center text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap`}>
                         {vme[fieldIndex].toFixed(2)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <p className="text-md text-center mt-6">
+                  <strong>Melhor investimento:</strong> Investimento{" "}
+                  {bestVmeInv + 1} (maior VME)
+                </p>
             </div>
           </div>
         </div>
