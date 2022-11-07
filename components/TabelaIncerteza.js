@@ -21,8 +21,6 @@ function TabelaIncerteza({ cenarios, investimentos }) {
     Hurwicz.push(hurwicz);
   });
 
-  console.log('MaxiMax', MaxiMax)
-
   const bestMaxiMax = MaxiMax.indexOf(Math.max(...MaxiMax));
   const bestMaxiMin = MaxiMin.indexOf(Math.max(...MaxiMin));
   const bestLaplace = Laplace.indexOf(Math.max(...Laplace));

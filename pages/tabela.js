@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { withRouter, useRouter } from "next/router";
 import { useForm, useFieldArray } from "react-hook-form";
 import TabelaVme from "../components/TabelaVme";
@@ -6,6 +6,7 @@ import styles from "../styles/Home.module.css";
 import TabelaPoe from "../components/TabelaPoe";
 import TabelaVeip from "../components/TabelaVeip";
 import TabelaIncerteza from "../components/TabelaIncerteza";
+import { TabelaContext } from "../context/TabelaContext";
 
 const mockDefaultValues = {
   ambienteDecisao: "Incerteza",
@@ -49,21 +50,17 @@ const mockDefaultValues = {
 
 function Tabela(props) {
   const router = useRouter();
+  const { state, dispatch, resetState } = useContext(TabelaContext);
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const { ambienteDecisao, numCenarios, numInvestimentos } = state;
+  
   const [generalErrorMsg, setGeneralErrorMsg] = useState("");
 
   useEffect(() => {
-    if (!props.router || !Object.values(props.router.query).length) {
+    if (!props.router || !state.ambienteDecisao || isNaN(state.numCenarios)|| isNaN(state.numInvestimentos)) {
       router.push("/");
     }
-  }, [router, props.router]);
-
-  const query = props.router.query;
-
-  const { ambienteDecisao } = query;
-  const numCenarios = parseInt(query.numCenarios, 10);
-  const numInvestimentos = parseInt(query.numInvestimentos, 10);
+  }, [router, props.router, state]);
 
   const arrCenarios = Array.from(Array(numCenarios || 0), (_, i) => i + 1);
 
@@ -98,6 +95,11 @@ function Tabela(props) {
 
   const allValues = watch();
 
+  const reset = () => {
+    resetState();
+    router.push("/");
+  }
+
   const onSubmit = data => {
     setGeneralErrorMsg("");
     const totalCenariosValue = data.cenarios.reduce(
@@ -112,17 +114,21 @@ function Tabela(props) {
       return;
     }
 
-    setIsSubmitted(true);
+    const { investimentos, cenarios } = data;
+
+    dispatch({ investimentos, cenarios, isSubmitted: true });
   };
 
-  const saveAnalisis = () => window.print();
-
-  const restart = () => router.push("/");
+  const saveAnalisis = () => {
+    console.log('ambienteDecisao', allValues.ambienteDecisao);
+    console.log('cenarios', allValues.cenarios);
+    console.log('investimentos', allValues.investimentos);
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.main}>
-        {!isSubmitted ? (
+        {!state.isSubmitted ? (
           <>
             <h1>Distribuição de Probabilidades</h1>
             <form
@@ -192,7 +198,7 @@ function Tabela(props) {
                                           }
                                         )}
                                         type="number"
-                                        className="w-20"
+                                        className="w-20 text-center"
                                         step="0.1"
                                       />
                                     </td>
@@ -211,7 +217,7 @@ function Tabela(props) {
                 <button
                   type="button"
                   className="border rounded border-red-500 bg-red-500 text-white text-sm w-32 mt-2 p-2"
-                  onClick={() => router.push("/")}
+                  onClick={reset}
                 >
                   Voltar
                 </button>
@@ -243,22 +249,13 @@ function Tabela(props) {
             {ambienteDecisao === "Risco" && (
               <div>
                 <h2 className="bold text-lg text-center">VME</h2>
-                <TabelaVme
-                  cenarios={allValues.cenarios}
-                  investimentos={allValues.investimentos}
-                />
+                <TabelaVme />
 
                 <h2 className="bold text-lg text-center mt-6">POE</h2>
-                <TabelaPoe
-                  cenarios={allValues.cenarios}
-                  investimentos={allValues.investimentos}
-                />
+                <TabelaPoe />
 
                 <h2 className="bold text-lg text-center mt-6">VEIP</h2>
-                <TabelaVeip
-                  cenarios={allValues.cenarios}
-                  investimentos={allValues.investimentos}
-                />
+                <TabelaVeip />
               </div>
             )}
             {ambienteDecisao === "Incerteza" && (
@@ -271,7 +268,7 @@ function Tabela(props) {
             )}
           </>
         )}
-        {isSubmitted && (
+        {state.isSubmitted && (
           <div className="w-42">
             <button
               type="submit"
@@ -283,7 +280,7 @@ function Tabela(props) {
             <button
               type="submit"
               className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
-              onClick={restart}
+              onClick={reset}
             >
               Realizar outra análise
             </button>

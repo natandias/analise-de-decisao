@@ -1,16 +1,17 @@
 import Head from "next/head";
-import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
+import { useContext } from "react";
+import { TabelaContext } from "../context/TabelaContext";
 
 export default function Home() {
   const router = useRouter();
+  const { dispatch } = useContext(TabelaContext);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
@@ -23,10 +24,9 @@ export default function Home() {
       numInvestimentos: parseInt(numInvestimentos, 10),
     };
 
-    router.push({
-      pathname: "/tabela",
-      query: { ...submitData },
-    });
+    dispatch({ ...submitData });
+
+    router.push("/tabela");
   };
 
   return (
@@ -134,7 +134,6 @@ export default function Home() {
             >
               Prosseguir
             </button>
-            {console.log("errors", errors)}
           </form>
         </div>
       </main>
