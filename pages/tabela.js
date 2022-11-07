@@ -97,7 +97,7 @@ function Tabela(props) {
 
   const reset = () => {
     resetState();
-    router.push("/");
+    router.push("/analise");
   }
 
   const onSubmit = data => {
@@ -131,11 +131,11 @@ function Tabela(props) {
     <div className={styles.container}>
       <div className={styles.main}>
         {!state.isSubmitted ? (
-          <>
+          <div className="bg-gradient-to-r text-center py-4">
             <h1>Distribuição de Probabilidades</h1>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center bg-gradient-to-r from-cyan-500 to-blue-500"
             >
               <div className="bg-white border rounded-5 ">
                 <div className="p-4">
@@ -215,7 +215,7 @@ function Tabela(props) {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 pb-2">
                 <button
                   type="button"
                   className="border rounded border-red-500 bg-red-500 text-white text-sm w-32 mt-2 p-2"
@@ -244,7 +244,7 @@ function Tabela(props) {
                 <p className="text-md text-red-500 mt-5">{generalErrorMsg}</p>
               )}
             </form>
-          </>
+          </div>
         ) : (
           <>
             <h1 className="text-xl mb-6">RESULTADOS</h1>
