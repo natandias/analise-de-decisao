@@ -11,7 +11,7 @@ const AnaliseSchema = new mongoose.Schema({
   bestVme: Number,
   poe: Array,
   bestPoe: Number,
-  veip: Array,
+  veip: Number,
   invPerfeito: Array,
   invPerfeitoPond: Array,
   MaxiMax: Array,

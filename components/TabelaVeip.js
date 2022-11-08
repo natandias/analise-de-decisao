@@ -68,7 +68,7 @@ function TabelaVeip() {
                     </tbody>
                   </table>
                   <p className="text-md text-center mt-6">
-                    <strong>VEIP:</strong> {veip}
+                    <strong>VEIP:</strong> {veip.toFixed(2)}
                   </p>
                 </div>
               </div>
