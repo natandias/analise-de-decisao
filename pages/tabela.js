@@ -8,56 +8,22 @@ import TabelaVeip from "../components/TabelaVeip";
 import TabelaIncerteza from "../components/TabelaIncerteza";
 import { TabelaContext } from "../context/TabelaContext";
 
-const mockDefaultValues = {
-  ambienteDecisao: "Incerteza",
-  investimentos: [
-    {
-      0: {
-        value: "100",
-      },
-      1: {
-        value: "210",
-      },
-      2: {
-        value: "140",
-      },
-    },
-    {
-      0: {
-        value: "120",
-      },
-      1: {
-        value: "80",
-      },
-      2: {
-        value: "190",
-      },
-    },
-    {
-      0: {
-        value: "170",
-      },
-      1: {
-        value: "200",
-      },
-      2: {
-        value: "140",
-      },
-    },
-  ],
-  cenarios: [{ value: "25" }, { value: "35" }, { value: "40" }],
-};
-
 function Tabela(props) {
   const router = useRouter();
   const { state, dispatch, resetState } = useContext(TabelaContext);
 
   const { ambienteDecisao, numCenarios, numInvestimentos } = state;
-  
+
   const [generalErrorMsg, setGeneralErrorMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!props.router || !state.ambienteDecisao || isNaN(state.numCenarios)|| isNaN(state.numInvestimentos)) {
+    if (
+      !props.router ||
+      !state.ambienteDecisao ||
+      isNaN(state.numCenarios) ||
+      isNaN(state.numInvestimentos)
+    ) {
       router.push("/");
     }
   }, [router, props.router, state]);
@@ -97,8 +63,10 @@ function Tabela(props) {
 
   const reset = () => {
     resetState();
-    router.push("/analise");
-  }
+    router.push("/");
+  };
+
+  console.log("state tabela", state)
 
   const onSubmit = data => {
     setGeneralErrorMsg("");
@@ -119,13 +87,35 @@ function Tabela(props) {
     dispatch({ investimentos, cenarios, isSubmitted: true });
   };
 
-  const saveAnalisis = () => {
-    console.log('ambienteDecisao', allValues.ambienteDecisao);
-    console.log('cenarios', allValues.cenarios);
-    console.log('investimentos', allValues.investimentos);
+  const saveAnalisis = async () => {
+    setIsSubmitting(true);
+  
+    const nomeRelatorio = window.prompt("Nome do relatório:");
+    try {
+      if (nomeRelatorio) {
+        const response = await fetch("/api/salvarAnalise", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...state, nome: nomeRelatorio }),
+        });
 
-    console.log("final state", state)
-  }
+        const data = await response.json();
+
+        if (data === "Saved") {
+          const shouldReturn = confirm(
+            "Relatório salvo. Deseja voltar a tela inicial?"
+          );
+          if (shouldReturn) reset();
+        }
+      }
+      setIsSubmitting(false);
+    } catch (error) {
+      alert("Não foi possível salvar o relatório! Tente novamente.");
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -269,19 +259,23 @@ function Tabela(props) {
         )}
         {state.isSubmitted && (
           <div className="w-42">
+            {!state.id && (
+              <button
+                type="submit"
+                className="border rounded border-green-500 bg-green-500 disabled:bg-green-300 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
+                onClick={saveAnalisis}
+                disabled={isSubmitting}
+              >
+                Salvar análise
+              </button>
+            )}
             <button
               type="submit"
-              className="border rounded border-green-500 bg-green-500 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
-              onClick={saveAnalisis}
-            >
-              Salvar análise
-            </button>
-            <button
-              type="submit"
-              className="border rounded border-red-500 bg-red-500 text-white text-center text-sm w-full mt-2 p-2 print:hidden"
+              className="border rounded border-red-500 bg-red-500 disabled:bg-red-300 text-white text-center text-sm w-full mt-2 p-2 print:hidden "
               onClick={reset}
+              disabled={isSubmitting}
             >
-              Realizar outra análise
+              Voltar ao início
             </button>
           </div>
         )}

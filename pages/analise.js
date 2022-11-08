@@ -134,13 +134,13 @@ export default function Analise() {
 
             <button
               type="submit"
-              className="border rounded border-green-500 bg-green-500 text-white text-md w-full p-2"
+              className="border rounded border-green-500 bg-green-500 hover:bg-green-600 text-white text-md w-full p-2"
             >
               Prosseguir
             </button>
             <button
               type="button"
-              className="border rounded border-red-500 bg-red-500 text-white text-md w-full p-2 mt-1"
+              className="border rounded border-red-500 bg-red-500 hover:bg-red-600 text-white text-md w-full p-2 mt-1"
               onClick={() => router.push("/")}
             >
               Voltar

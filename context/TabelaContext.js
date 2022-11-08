@@ -1,6 +1,8 @@
 import React from 'react';
 
 const initialValues = {
+  id: null,
+  nome: null,
   ambienteDecisao: null,
   numCenarios: null,
   numInvestimentos: null,
@@ -25,6 +27,48 @@ const initialValues = {
   bestMiniMax: null,
   isSubmitted: false
 };
+
+// const mockDefaultValues = {
+//   ...initialValues,
+//   ambienteDecisao: "Incerteza",
+//   investimentos: [
+//     {
+//       0: {
+//         value: "100",
+//       },
+//       1: {
+//         value: "210",
+//       },
+//       2: {
+//         value: "140",
+//       },
+//     },
+//     {
+//       0: {
+//         value: "120",
+//       },
+//       1: {
+//         value: "80",
+//       },
+//       2: {
+//         value: "190",
+//       },
+//     },
+//     {
+//       0: {
+//         value: "170",
+//       },
+//       1: {
+//         value: "200",
+//       },
+//       2: {
+//         value: "140",
+//       },
+//     },
+//   ],
+//   cenarios: [{ value: "25" }, { value: "35" }, { value: "40" }],
+//   isSubmitted: true
+// };
 
 const TabelaContext = React.createContext();
 
